@@ -3,32 +3,32 @@ import Ember from 'ember';
 
 /**
   C3 Chart component
-*/
-export default Ember.Component.extend({
+  */
+  export default Ember.Component.extend({
   /**
     Element tag name
-  */
-  tagName: 'div',
+    */
+    tagName: 'div',
 
   /**
     Element classes
-  */
-  classNames: ['c3-chart-component'],
+    */
+    classNames: ['c3-chart-component'],
 
   /**
     The data to display
-  */
-  data: {},
+    */
+    data: {},
 
   /**
     Axis specifications
-  */
-  axis: {},
+    */
+    axis: {},
 
   /**
     Region specifications
-  */
-  regions: {},
+    */
+    regions: {},
 
   /*
   Type of chart
@@ -40,63 +40,63 @@ export default Ember.Component.extend({
 
   /**
     Grid lines
-  */
-  grid: {},
+    */
+    grid: {},
 
   /**
     Legend
-  */
-  legend: {},
+    */
+    legend: {},
 
   /**
     Tooltip
-  */
-  tooltip: {},
+    */
+    tooltip: {},
 
   /**
     Subchart
-  */
-  subchart: {},
+    */
+    subchart: {},
 
   /**
     Zoom
-  */
-  zoom: {},
+    */
+    zoom: {},
 
   /**
     Point
-  */
-  point: {},
+    */
+    point: {},
 
   /**
     Line
-  */
-  line: {},
+    */
+    line: {},
 
   /**
     Area
-  */
-  area: {},
+    */
+    area: {},
 
   /**
     Size
-  */
-  size: {},
+    */
+    size: {},
 
   /**
     Padding
-  */
-  padding: {},
+    */
+    padding: {},
 
   /**
     Color
-  */
-  color: {},
+    */
+    color: {},
 
   /**
     Transition
-  */
-  transition: {},
+    */
+    transition: {},
 
   /**
 
@@ -105,10 +105,19 @@ export default Ember.Component.extend({
 
   /**
     The Chart
-  */
-  chart: Ember.computed('config', function() {
-    var self = this;
-
+    */
+    chart: Ember.computed('config', function() {
+      var self = this;
+/*
+    (function animate() {
+      setTimeout(function() {
+        var axis = self.get('axis');
+        self.get('chart').load(axis);
+        console.log('updating axis: ' + axis.x.max);
+        animate();
+      }, 1000);
+    })(); 
+    */
     if (Ember.isEmpty(self.get('_chart'))) {
       // Empty, create it.
       var container = self.$().get(0);
@@ -126,29 +135,7 @@ export default Ember.Component.extend({
     }
   }),
 
-  _config: Ember.computed(
-  'data',
-  'axis',
-  'regions',
-  'bar',
-  'pie',
-  'donut',
-  'gauge',
-  'grid',
-  'legend',
-  'tooltip',
-  'subchart',
-  'zoom',
-  'point',
-  'line',
-  'area',
-  'size',
-  'padding',
-  'color',
-  'transition',
-  function() {
-    var self = this;
-    var c = self.getProperties([
+    _config: Ember.computed(
       'data',
       'axis',
       'regions',
@@ -167,30 +154,71 @@ export default Ember.Component.extend({
       'size',
       'padding',
       'color',
-      'transition'
-    ]);
+      'transition',
+      function() {
+        var self = this;
+        var c = self.getProperties([
+          'data',
+          'axis',
+          'regions',
+          'bar',
+          'pie',
+          'donut',
+          'gauge',
+          'grid',
+          'legend',
+          'tooltip',
+          'subchart',
+          'zoom',
+          'point',
+          'line',
+          'area',
+          'size',
+          'padding',
+          'color',
+          'transition'
+          ]);
 
-    Ember.A([
-      'oninit',
-      'onrendered',
-      'onmouseover',
-      'onmouseout',
-      'onresize',
-      'onresized'
-    ]).forEach(function(eventname) {
-      c[eventname] = function() {
-        self.sendAction(eventname, this);
-      };
-    });
+        Ember.A([
+          'oninit',
+          'onrendered',
+          'onmouseover',
+          'onmouseout',
+          'onresize',
+          'onresized'
+          ]).forEach(function(eventname) {
+            c[eventname] = function() {
+              self.sendAction(eventname, this);
+            };
+          });
 
-    c.bindto = self.$().get(0);
-    return c;
-  }),
+          c.bindto = self.$().get(0);
+          return c;
+        }),
+
+
+  // /**
+  //   Axis Observer
+  // */
+  // axisDidChange: Ember.observer('axis', function() {
+  //   // console.log('data');
+  //   var self = this;
+  //   var chart = self.get('chart');
+  //   if (Ember.isEmpty(chart)) {
+  //     return;
+  //   }
+  //   var axis = self.get('axis');
+  //   if (Ember.isEmpty(axis)) {
+  //     return;
+  //   }
+  //   console.log("axis did change");
+  //   chart.load(axis);
+  // }),
 
   /**
     Data Observer
-  */
-  dataDidChange: Ember.observer('data', function() {
+    */
+    dataDidChange: Ember.observer('data', function() {
     // console.log('data');
     var self = this;
     var chart = self.get('chart');
@@ -201,9 +229,26 @@ export default Ember.Component.extend({
     if (Ember.isEmpty(data)) {
       return;
     }
-    // console.log('data', data, chart);
+    //console.log("data did change");
     chart.load(data);
   }),
+
+    axisDidChange: Ember.observer('axis', function() {
+    // console.log('data');
+    var self = this;
+    var chart = self.get('chart');
+    if (Ember.isEmpty(chart)) {
+      return;
+    }
+    var axis = self.get('axis');
+    if (Ember.isEmpty(axis)) {
+      return;
+    }
+    //console.log("axis did change: " + "max: " + axis.x.max + " and min: " + axis.x.min);
+    chart.axis.range({max: {x: axis.x.max}, min: {x: axis.x.min}});
+    
+  }),
+
   /**
   See https://github.com/emberjs/ember.js/issues/10661
   and http://stackoverflow.com/a/25523850/2578205
@@ -216,20 +261,21 @@ export default Ember.Component.extend({
     var propertyKey;
     var data = this.get('data');
     for ( var prop in controller ) {
-        if ( controller.hasOwnProperty( prop ) ) {
-             if ( controller[ prop ] === data ) {
-               propertyKey = prop;
-               break;
-             }
-        }
-    }
-    if (Ember.isEmpty(propertyKey)) {
+      if ( controller.hasOwnProperty( prop ) ) {
+       if ( controller[ prop ] === data ) {
+         propertyKey = prop;
+         break;
+       }
+     }
+   }
+   if (Ember.isEmpty(propertyKey)) {
       // console.log('Could not find propertyKey', data);
     } else {
       // console.log('Found key!', propertyKey, data);
       controller.addObserver(propertyKey, this, this.dataDidChange);
     }
     this.dataDidChange();
+    this.axisDidChange();
   }
 
 });
